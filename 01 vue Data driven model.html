@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+
+  <!-- vue数据驱动模型原理 -->
+  <!-- vue单文件组件中的template中写的模板，并不会直接在页面中渲染，而是要求它一直在内存中，
+   每次数据变化时将模板与数据结合再渲染到页面中否则该模板将只能渲染一次，下次数据变化时页面中的插值表达式将不会被匹配到了，
+   下面对该原理进行简单实现，具体分为以下几步
+  1 准备模板和数据
+  2 准备vueTest构造函数，函数中拿到模板和数据，并将其结合加载到页面中
+  3 实例化构造函数 -->
+
+
+  <!-- 首先准备一个简单的模板 -->
+  <div id="root">
+    <p>{{ name.firstName }}</p>
+    <p>{{ name.lastName}}</p>
+  </div>
+
+  <script>
+    // 准备构造函数
+     function vueTest( options ) {
+       // 首先拿到数据
+      this._data = options.data;
+      this._el = options.el;
+
+      // 拿到模板
+      this._templateDOM = document.querySelector( this._el );
+      this._parent = this._templateDOM.parentNode; // 获取模板的父元素，为了调用replaceChild方法替换模板
+
+      // 渲染函数，实现数据与模板结合并渲染到页面中
+      this.render()
+    }
+    vueTest.prototype.render = function () {
+      let realHTMLDOM = this._templateDOM.cloneNode( true ); // 用模板拷贝得到一个准DOM
+      compiler( realHTMLDOM, this._data ); // 编译函数，负责将数据与模板结合
+      this.update( realHTMLDOM ); // 将结合后的模板替换掉页面中的旧模板
+    }
+    vueTest.prototype.update = function ( real ) {
+      this._parent.replaceChild( real, document.querySelector( '#root' ) );
+    }
+    let rkuohao = /\{\{(.+?)\}\}/g; // 匹配插值表达式的正则
+    function compiler( template, data ) {
+      let childNodes = template.childNodes; // 取出模板的子元素
+      for ( let i = 0; i < childNodes.length; i++ ) { // 循环模板 区分出文本节点和普通节点
+        let type = childNodes[ i ].nodeType; // 1 元素, 3 文本节点
+        if ( type === 3 ) {
+          // 文本节点, 则判断里面是否有 {{}} 插值
+          let txt = childNodes[ i ].nodeValue; // 该属性只有文本节点才有意义
+          txt = txt.replace( rkuohao, function ( _, g ) { // replace 使用正则匹配一次 函数就会被调用一次
+                                                    // 函数的 第 0 个参数 表示匹配到的内容
+                                                    // 函数的 第 n 个参数 表示正则中的 第 n 组，由于正则中只有一对（），因此只有一组
+            let path = g.trim(); // 写在双花括号里面的东西
+            let value = getValueByPath( data, path );// 通过路径找到data中对应的值
+            // 将 {{ xxxx }} 用这个 值替换
+            return value; // 函数的返回值会将{{}}替换掉
+          } );
+          childNodes[ i ].nodeValue = txt; // 再将文本节点的内容替换掉
+        } 
+        else if ( type === 1 ) {
+          // 普通元素, 考虑它有没有子元素, 是否有插值，因此要递归
+          compiler( childNodes[ i ], data );
+        }
+      }
+    }
+    // 用字符串路径来访问对象的成员
+    function getValueByPath( obj, path ) {
+      let paths = path.split( '.' );// 将字符串路径分隔为数组
+  
+      let res = obj;
+      let prop;
+      while( prop = paths.shift() ) { // 每次循环取数组索引为0的值并删除该值，数组空时循环结束
+        res = res[ prop ];
+      }
+      return res;
+    }
+
+    let app = new vueTest( {
+      el: '#root',
+      data: {
+        name: {
+          firstName: '李',
+          lastName: '云龙'
+        }
+      }
+    } );
+    // 需要说明上面只是对该原理的简单实现，vue源码中并不是这么做的，vue是通过操作虚拟dom实现，后面我将通过深入学习来对其做更详细的介绍。
+  </script>
+</body>
+</html>
