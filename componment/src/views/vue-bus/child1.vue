@@ -1,6 +1,7 @@
 <template>
   <div>
-    <div @click="add">加1</div>
+    我是组件一
+    <button @click="add">+9</button>
   </div>
 </template>
 
@@ -8,7 +9,11 @@
 export default {
   data () {
     return {
-
+    }
+  },
+  methods: {
+    add () {
+      this.$bus.$emit('add', 9)
     }
   }
 }

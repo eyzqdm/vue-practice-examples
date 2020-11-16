@@ -13,14 +13,15 @@ class MyBus {
   }
 
   $emit (name, args) { // 触发事件，参数为事件名和参数
+    console.log(name)
     this.callbacks[name] = args
   }
 
-  $onabort (name, callback) { // 监听事件，参数为事件名和回调
+  $on (name, callback) { // 监听事件，参数为事件名和回调
     callback(this.callbacks[name])
   }
 }
-Vue.protoType.myBus = new MyBus()
+Vue.prototype.$bus = new MyBus() // 重新挂载
 new Vue({
   router,
   store,
