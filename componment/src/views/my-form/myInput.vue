@@ -23,6 +23,11 @@ export default {
   methods: {
     onInput (e) {
       this.$emit('input', e.target.value)
+      /* 输入完成 触发校验 而校验在父组件formItem中完成
+      因此要通知父组件 这里注意 不能直接用this.$emit
+      因为插与被插的关系不是普通的父子关系。父组件不能通过@监听子组件的自定义事件
+      因此让父级触发，父级监听 */
+      this.$parent.$emit('validate')
     }
   }
 }

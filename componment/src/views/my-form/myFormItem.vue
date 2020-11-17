@@ -13,12 +13,25 @@ export default {
     label: {
       type: String,
       default: ''
+    },
+    prop: {
+      type: String
     }
   },
   data () {
     return {
       error: ''
     }
+  },
+  methods: {
+    validate () {
+      console.log(this.form.rules[this.prop])
+    }
+  },
+  mounted () {
+    this.$on('validate', () => {
+      this.validate()
+    })
   }
 }
 </script>
