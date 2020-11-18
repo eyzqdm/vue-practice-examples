@@ -18,6 +18,7 @@
 import MInput from './myInput'
 import FormItem from './myFormItem'
 import myForm from './myForm'
+import Notice from '../slots/Notice'
 export default {
   provide () {
     /* 为方便维护，这里将整个实例传递下去，后代组件按需注入即可 */
@@ -49,18 +50,18 @@ export default {
     并调用其自身的validate方法。同时，该方法会接受一个回调函数作为参数，该回调接受一个
     布尔值，根据布尔值判断是否可以登录。 */
       this.$refs.loginForm.validate(valid => {
-      /*  const notice = this.$create(Notice, {
-          title: "社会你杨哥喊你来搬砖",
-          message: valid ? "请求登录!" : "校验失败!",
+       const notice = this.$create(Notice, {
+          title: '社会你杨哥喊你来搬砖',
+          message: valid ? '请求登录!' : '校验失败!',
           duration: 2000
-        });
-        notice.show(); */
-        if (valid) {
+        })
+        notice.show()
+      /*   if (valid) {
           alert('submit')
         } else {
           console.log('error submit!')
           return false
-        }
+        } */
       })
     }
   },

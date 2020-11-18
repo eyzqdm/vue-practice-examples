@@ -2,8 +2,10 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import create from './utils/create'
 
 Vue.config.productionTip = false
+Vue.prototype.$create = create
 
 /* 手动实现一个bus */
 
