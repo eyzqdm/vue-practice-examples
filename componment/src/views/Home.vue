@@ -5,6 +5,7 @@
     <child-a v-if="isAshow"></child-a>
     <child-b v-if="isBshow"></child-b> -->
     <my-form></my-form>
+    <!-- <Mix-in></Mix-in> -->
   </div>
 </template>
 
@@ -13,6 +14,7 @@
 /* import childA from '../views/vue-bus/child1'
 import childB from '../views/vue-bus/child2' */
 import myForm from './my-form/index'
+// import MixIn from './mixin/mymixin'
 export default {
   name: 'Home',
   data () {
@@ -35,6 +37,7 @@ export default {
     /* childA,
     childB */
     myForm
+    // MixIn
   }
 }
 </script>
