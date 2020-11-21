@@ -10,7 +10,7 @@
 // Asyc-validator
 import Schema from 'async-validator'
 export default {
-  inject: ['form'],
+  inject: ['form'], // 注入form实例，获取要校验的值和校验规则
   props: {
     label: {
       type: String,
