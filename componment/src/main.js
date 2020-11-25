@@ -5,7 +5,7 @@ import store from './store'
 import create from './utils/create'
 
 Vue.config.productionTip = false
-Vue.prototype.$create = create
+Vue.use(create)
 
 /* 手动实现一个bus */
 

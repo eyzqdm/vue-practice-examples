@@ -1,5 +1,6 @@
 /* 创建组件实例 传入组件模板和参数 返回组件实例 */
 import Vue from 'vue'
+import Notice from '../views/slots/Notice'
 function create (Component, props) {
     /* 首先要有组件的构造函数 1 Vue.extend() 2 render
     这里先用render实现 那就要new一个vue实例出来 */
@@ -20,4 +21,12 @@ function create (Component, props) {
 
     return comp
 }
-export default create
+export default {
+    /* install方法实现的需求是 在使用组件时不需要再传入组件模板，只需传入参数。
+    这里用到函数的柯里化。 */
+    install (Vue) {
+      Vue.prototype.$notice = function (options) {
+        return create(Notice, options)
+      }
+    }
+  }

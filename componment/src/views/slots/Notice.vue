@@ -1,5 +1,5 @@
 <template>
-  <div class="box" v-if="isShow">
+  <div class="box" v-if="isNoticeShow">
     <h3>{{title}}</h3>
     <p class="box-content">{{message}}</p>
   </div>
@@ -23,16 +23,16 @@ export default {
   },
   data () {
     return {
-      isShow: false
+      isNoticeShow: false
     }
   },
   methods: {
     show () {
-      this.isShow = true
+      this.isNoticeShow = true
       setTimeout(this.hide, this.duration)
     },
     hide () {
-      this.isShow = false
+      this.isNoticeShow = false
       // 清除自己
       this.remove()
     }
@@ -43,9 +43,9 @@ export default {
 <style>
 .box {
   position: fixed;
-  width: 100%;
+  width: 20%;
   top: 16px;
-  left: 0;
+  left: 40%;
   text-align: center;
   pointer-events: none;
   background-color: #fff;
@@ -53,7 +53,7 @@ export default {
   box-sizing: border-box;
 }
 .box-content {
-  width: 200px;
+  width: 150px;
   margin: 10px auto;
   font-size: 14px;
   padding: 8px 16px;
