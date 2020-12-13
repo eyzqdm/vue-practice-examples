@@ -26,6 +26,14 @@ const routes = [
             return h('div', 'infoPage')
           }
         }
+      },
+      {
+        path: '/about/name',
+        component: {
+          render (h){
+            return h('div', 'xiaom')
+          }
+        }
       }
     ]
   }
