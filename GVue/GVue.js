@@ -6,7 +6,8 @@ class GVue{
 
     }
     reactive(){ // 将data响应化
-      reactify(this.$data, this) // 传入实例 临时性处理 便于在set中更新模板
+      observe(this.$data, this) // 传入实例 临时性处理 便于在set中更新模板
+      proxy(this,'$data')
     }
     
     mount(){ // 挂载
@@ -72,17 +73,31 @@ class Vnode {
     }
 }
 
-
-
-
+/** 代理 将某一个对象的属性访问 映射到对象的某一个属性成员上 */
+function proxy(target, prop) {
+  Object.keys(target[prop]).forEach((key)=> {
+      Object.defineProperty(target,key,{
+          enumerable: true,
+          configurable: true,
+          get(){
+              return target[prop][key];
+          },
+          set(newValue){
+               
+              target[prop][key] = newValue
+          }
+      })
+  })
+}
 
 function defineReactive (obj,key,value){ // 数据响应化
 
     const that = this
 
     if(typeof value === 'object' && value != null){
-
-        reactify(value)
+      
+      // 传入observe的可能是数组吗？不可能
+      observe(value,that)
     }
 
     Object.defineProperty(obj,key,{
@@ -95,7 +110,9 @@ function defineReactive (obj,key,value){ // 数据响应化
         set(newValue){
             console.log('设置'+key+'为'+newValue)
 
-            value = newValue
+            typeof newValue === 'object'&&observe(newValue)
+
+            value = newValue // 目前的问题 传入的newVal是对象的话没法对该对象响应化 临时解决办法是observe一下
              
             //数据已更新 更新模板并渲染到页面
             that.mountComponent();
@@ -114,9 +131,13 @@ let Array_Methods = [
     'splice',
   ];
 
-function createArrayProto(Methods){ //  创建响应式数组原型 柯里化
+function createArrayProto(Methods){ //  创建响应式数组原型 柯里化 参数是需要响应化的方法
 
-    let Array_Proto = Object.create( Array.prototype )
+
+  /* 核心原理是在数组实例的原型链上加一层，
+  让数组实例访问数组方法时首先访问的是新增的原型上的改写过的方法 */
+
+    let Array_Proto = Object.create( Array.prototype ) 
 
     
     Methods.forEach((method) => {
@@ -124,11 +145,14 @@ function createArrayProto(Methods){ //  创建响应式数组原型 柯里化
         Array_Proto[method] = function(){
 
             console.log('重写的' + method +' 方法')
+            debugger
+            console.log(arguments)
 
-            arguments.forEach((item) => {  // 数组数据响应化
-               
-                reactify(item)
-            })
+            for( let i = 0; i < arguments.length; i++ ) { // 对调用数组方法时出传入的数据进行响应化
+               typeof arguments[ i ] === 'object'&&observe( arguments[ i ] );
+            } 
+
+            /* 更新页面方法暂时空缺 */
 
             return Array.prototype[method].apply(this,arguments)
 
@@ -139,9 +163,11 @@ function createArrayProto(Methods){ //  创建响应式数组原型 柯里化
 
         array.__proto__ = Array_Proto
 
+        /* 对数组中的数据响应化 这样数组中的值。。 */
+
         array.forEach((item) => {
 
-            reactify(item,vm)
+          observe(item,vm)
         })
     }
 }
@@ -150,7 +176,23 @@ function createArrayProto(Methods){ //  创建响应式数组原型 柯里化
 const reactiveArray = createArrayProto(Array_Methods)
 
 
-function reactify(obj,vm){  // 将对象响应化（数组，对象）
+function observe(obj,vm){  // 将对象响应化（数组，对象）
+
+  /*
+  data:{
+    name:'123', 
+    普通变量响应化后，被改变会被监听到
+    obj:{ name:'123'},
+    对象obj，进入defineReactive后首先会被observe一下，把他自己的属性响应化。
+    即obj.xxx改变时会被监听到。此时obj本身还没被响应化，即data.obj被整体赋值时并不会
+    被监听到。data.obj.xxx = yyy 会被监听。data.obj = {} 不会被监听。
+    不着急，此时defineReactive代码继续向下执行 data.obj就变成响应式了
+    arr:[]
+    数组arr ,其每个属性会被响应化，即通过arr的各种方法（push）时会被监听。
+    但数组本身被整体赋值则不会被监听，reactiveArray方法没有做这件事
+  } 
+  把这个响应化过程好好捋一遍
+   */
 
     Object.keys(obj).forEach((key) => {
        
@@ -160,9 +202,8 @@ function reactify(obj,vm){  // 将对象响应化（数组，对象）
            
             reactiveArray(value,vm) 
         }
-        else{
-            defineReactive.call(vm,obj,key,value) // call一下 函数中的this就是GVue实例了
-        }
+        // 完美 这样数组本身也是响应式了 整体修改数组也会被监听
+            defineReactive.call(vm,obj,key,value) // call一下 函数中的this就是Vue实例了
 
     })
 }
@@ -224,7 +265,7 @@ function parseVnode(vnode){ // 虚拟dom转换为真实dom
   return _node
 }
 
-let rkuohao = /\{\{(.+?)\}\}/g; // 获取插值的正则
+let brackets = /\{\{(.+?)\}\}/g; // 获取插值的正则
 function getValueByPath(obj,path){
 
     let paths = path.split('.');
@@ -251,7 +292,7 @@ function combine(vnode,data){ // 将带坑的vnode与数据结合
       if ( _type === 3 ) { // 文本节点 
 
         // 对文本处理
-        _value = _value.replace( rkuohao, function ( _, g ) {
+        _value = _value.replace( brackets, function ( _, g ) {
           return getValueByPath( data, g.trim() ); // 除了 get 读取器
         } );
 
@@ -263,4 +304,14 @@ function combine(vnode,data){ // 将带坑的vnode与数据结合
       }
 
       return _vnode;
+
+
+      // 这里的数组响应化只是数组的数据响应化了 数组本身没有响应化 但是对象和对象的数据都是响应化的
+      // 即不论是对象的数据变化 还是直接给对象整体赋值 都可以响应式的更新页面 因为对象有object.defineProty,而数组没有
+
+    // 数值数组怎么办  vue2里好像也没法解决 是用vue.set设置的？
+    // 数组整体赋值怎么办  已解决
+    // 对象增减数据怎么办 参考村长 $set?
+    // 后期加入diff v-model等指令 要逐步完善
+  
 }

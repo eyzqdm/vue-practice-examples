@@ -12,6 +12,8 @@
           <div title="tt1" id="id">{{ name }}</div>
           <div title="tt2">{{ age }}</div>
           <div title="tt3">{{ gender }}</div>
+          <div title="tt3">{{ arr }}</div>
+          <div title="tt3">{{ obj.name }}</div>
           <ul>
             <li>1</li>
             <li>2</li>
@@ -27,7 +29,11 @@ let app = new GVue({
     data:{
         name:'小明',
         age:18,
-        gender:'难'
+        gender:'难',
+        arr:[1,2,3],
+        obj:{
+          name:'二蛋'
+        }
     }
 })
 
