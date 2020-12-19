@@ -18,7 +18,6 @@ class GVue{
       this.mountComponent()
     }
 
-
     createRenderFn(){ // 返回一个函数 生成虚拟dom 
      let AST = getVNode(this._template)
 
@@ -145,9 +144,7 @@ function createArrayProto(Methods){ //  创建响应式数组原型 柯里化 �
         Array_Proto[method] = function(){
 
             console.log('重写的' + method +' 方法')
-            debugger
-            console.log(arguments)
-
+            
             for( let i = 0; i < arguments.length; i++ ) { // 对调用数组方法时出传入的数据进行响应化
                typeof arguments[ i ] === 'object'&&observe( arguments[ i ] );
             } 
@@ -287,7 +284,8 @@ function combine(vnode,data){ // 将带坑的vnode与数据结合
       let _children = vnode.children;
 
 
-      let _vnode = null;
+      let _vnode = null; // 必须新建一个vnode而不是直接更改传入的vnode,
+      // 因为传入的是引用类型 在函数里改等于把原来的对象（AST）也改了 那就相当于模板被改了
 
       if ( _type === 3 ) { // 文本节点 
 
