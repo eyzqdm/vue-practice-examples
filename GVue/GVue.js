@@ -1,3 +1,125 @@
+class Watcher { // 观察者
+
+  /**
+   * 
+   * @param {Object} vm 组件实例
+   * @param {String|Function} expOrfn 如果是渲染 watcher, 传入的就是渲染函数, 如果是 计算 watcher(计算属性) 传入的就是路径表达式
+   */
+  constructor(vm, expOrfn){
+     
+    this.vm = vm;
+    this.getter = expOrfn;
+    this.deps = []; // 依赖项 也就是被观察者 组件的每个属性都对应一个dep对象
+
+    this.get(); // 首次执行渲染 组件创建时会new一个属于自己的watcher 组件渲染逻辑都在watcher中 因此newWatcher的同时 组件也就渲染了
+  }
+  /** 计算, 触发 getter */
+  get() {
+    pushTarget( this ); // 这两个方法是全局的 用于将当前的渲染watcher挂载/踢出全局
+    // get方法执行时 说明当前组件正在渲染中,因此在getter前将当前组件的渲染watcher
+    // 挂到全局。这样此watcher在全局范围内就可访问到。由于组件渲染时必然会访问组件的每个属性，因为必然触发属性的getter。
+    // 因此可以在getter中进行依赖收集
+
+    console.log('执行了渲染')
+    this.getter.call( this.vm ); // 绑定上下文
+    
+    // 渲染完成，将watcher踢出全局
+    popTarget();
+  }
+  run() {
+    this.get(); 
+    // 在真正的 vue 中是调用 queueWatcher, 来触发 nextTick 进行异步的执行
+  }
+  /** 对外公开的函数, 用于在 属性发生变化时触发的接口 */
+  update() {
+    this.run(); 
+  }
+
+  /** 清空依赖队列 */
+  cleanupDep() {
+
+  }
+
+  /* 依赖收集，即watcher要观察的所有属性都通过该方法添加。
+  该方法在dep.depend方法中调用。因为调用depend方法时是在属性的getter中。此时watcher时挂载在全局的
+  即dep.target上。dep.depend方法用于watcher与dep的相互关联。即
+  一个属性可能有多个观察者观察他，一个观察者也可能要观察多个属性。
+   */
+  addDep( dep ) {
+    this.deps.push( dep );
+  }
+
+}
+
+class Dep { // 依赖 每个属性对应一个Dep对象
+
+  constructor(){
+
+    this.subs = [] // 存储所有观察自己的watcher
+
+  }
+  /** 添加一个 watcher */
+  addSub( sub ) {
+    this.subs.push( sub );
+  }
+
+  /** 移除一个watcher */
+  removeSub( sub ) {
+    for ( let i = this.subs.length - 1; i >= 0 ; i-- ) {
+      if ( sub === this.subs[ i ] ) {
+        this.subs.splice( i, 1 );
+      }
+    }
+  }
+  /** 将当前 Dep 与当前的 watcher 相互关联
+   * Dep添加到Watcher的deps中
+   * Watcher添加到Dep的subs中
+  */
+  depend() {
+    
+    if ( Dep.target ) {
+      
+      this.addSub( Dep.target ); 
+
+      Dep.target.addDep( this ); 
+
+    }
+  }
+  /** 派发更新 通知自己的所有观察者更新 */
+  notify() {
+    // 在真实的 Vue 中是依次触发 this.subs 中的 watcher 的 update 方法
+  
+   this.subs.forEach( watcher => {
+
+      watcher.update()
+
+     });  
+   }
+}
+
+/*由于页面中可能存在父子组件或多级嵌套组件。而同一时间的全局watcher只能有一个
+因此需要一个全局的watcher容器来存储watcher。使用栈结构。这里用数组模拟。
+ */
+Dep.target = null; // 全局watcher
+
+let targetStack = []; //全局watcher栈 
+
+/** 将当前操作的 watcher 存储到 全局 watcher 中, 参数 target 就是当前 watcher */
+function pushTarget( target ) {
+  /* 先将当前的全局watcher入栈保存起来,再将全局watcher替换成传入的watcher。
+  等 */
+  targetStack.unshift( Dep.target ); 
+  Dep.target = target;
+}
+
+/** 等当前全局的渲染watcher的getter执行结束，将其剔除全局，再将之前入栈保存起来的watcher（假设为父watcher）取出来。
+ * 这两个过程都是在父watcher的渲染过程中的。父组件渲染过程中碰到了子组件，触发子组件的渲染watcher。子watcher挂载
+ * 到全局，父watcher入栈。等子watcher渲染完成，父watcher出栈，再一次挂载到全局。并继续执行父watcher的getter。
+ */
+function popTarget() {
+  Dep.target = targetStack.shift(); // 踢到最后就是 undefined
+}
+
 class GVue{
     constructor(options){
         this.$data = options.data
@@ -38,8 +160,15 @@ class GVue{
     }
 
     mountComponent(){ // 
+      const mount = function (){
         
-      this.update(this.render())
+        this.update(this.render())
+      }
+    
+      console.log('创建watcher')
+      new Watcher (this,mount) //相当于这里调用了 mount
+        //每个组件都是自治的 都有自己的mount 组件创建时会有一个专属于自己的watcher
+      
     }
 
     update(vnode){ // 将vdom渲染到页面
@@ -91,19 +220,23 @@ function proxy(target, prop) {
 
 function defineReactive (obj,key,value){ // 数据响应化
 
-    const that = this
 
     if(typeof value === 'object' && value != null){
       
       // 传入observe的可能是数组吗？不可能
-      observe(value,that)
+      observe(value)
     }
+
+    console.log('创建'+value+'的dep')
+    let dep = new Dep(); // 为每个属性创建一个Dep
 
     Object.defineProperty(obj,key,{
         configurable: true, // 可配置
         enumerable: true, // 可枚举
         get(){
             console.log('读取'+key)
+            console.log('依赖收集')
+            dep.depend(); // 依赖收集
             return value
         },
         set(newValue){
@@ -114,7 +247,8 @@ function defineReactive (obj,key,value){ // 数据响应化
             value = newValue // 目前的问题 传入的newVal是对象的话没法对该对象响应化 临时解决办法是observe一下
              
             //数据已更新 更新模板并渲染到页面
-            that.mountComponent();
+            console.log('派发更新')
+            dep.notify();
         }
     })
 
@@ -156,7 +290,7 @@ function createArrayProto(Methods){ //  创建响应式数组原型 柯里化 �
         }
     })
 
-    return function (array,vm){
+    return function (array){
 
         array.__proto__ = Array_Proto
 
@@ -164,7 +298,7 @@ function createArrayProto(Methods){ //  创建响应式数组原型 柯里化 �
 
         array.forEach((item) => {
 
-          observe(item,vm)
+          observe(item)
         })
     }
 }
@@ -173,7 +307,7 @@ function createArrayProto(Methods){ //  创建响应式数组原型 柯里化 �
 const reactiveArray = createArrayProto(Array_Methods)
 
 
-function observe(obj,vm){  // 将对象响应化（数组，对象）
+function observe(obj){  // 将对象响应化（数组，对象）
 
   /*
   data:{
@@ -197,10 +331,10 @@ function observe(obj,vm){  // 将对象响应化（数组，对象）
         let value = obj[key]
         if(Array.isArray(value)){
            
-            reactiveArray(value,vm) 
+            reactiveArray(value) 
         }
         // 完美 这样数组本身也是响应式了 整体修改数组也会被监听
-            defineReactive.call(vm,obj,key,value) // call一下 函数中的this就是Vue实例了
+            defineReactive(obj,key,value) // call一下 函数中的this就是Vue实例了
 
     })
 }
