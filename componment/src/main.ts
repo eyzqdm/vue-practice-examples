@@ -3,15 +3,15 @@ import App from './App.vue'
 import router from './myrouter/index'
 import store from './myStore'
 import create from './utils/create'
+import axios from 'axios'
 
 Vue.config.productionTip = false
 Vue.use(create)
-
+Vue.prototype.$axios = axios
 /* 手动实现一个bus */
 
 class MyBus {
   public callbacks = {} // 存储所有自定义事件的回调函数
-  
   constructor () {
     
   }

@@ -25,6 +25,17 @@ export default class Hello extends Vue {
   get count () {
     return this.features.length
   }
+
+  async created () {
+    // getFeatures().then(res => {
+    //   this.features = res.data
+    // })
+
+    // const res = await this.$axios.get<Feature[]>('/api/list')
+
+    // console.log(res)
+    // [{ id: 1, name: "类型注解" }];
+  }
 }
 </script>
 <style scoped>
