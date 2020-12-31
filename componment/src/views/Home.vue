@@ -1,43 +1,21 @@
 <template>
   <div class="home">
-    <!-- <button @click="showA">组件一</button>
-    <button @click="showB">组件二</button>
-    <child-a v-if="isAshow"></child-a>
-    <child-b v-if="isBshow"></child-b> -->
-    <my-form></my-form>
-    <!-- <Mix-in></Mix-in> -->
+    <img alt="Vue logo" src="../assets/logo.png">
+    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+    <Hello></Hello>
   </div>
 </template>
 
-<script>
-// @ is an alias to /src
-/* import childA from '../views/vue-bus/child1'
-import childB from '../views/vue-bus/child2' */
-import myForm from './my-form/index'
-// import MixIn from './mixin/mymixin'
-export default {
-  name: 'Home',
-  data () {
-    return {
-      isAshow: false,
-      isBshow: false
-    }
-  },
-  methods: {
-    showA () {
-      this.isAshow = true
-      this.isBshow = false
-    },
-    showB () {
-      this.isBshow = true
-      this.isAshow = false
-    }
-  },
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator'
+import HelloWorld from '@/components/HelloWorld.vue' // @ is an alias to /src
+import Hello from './slots/hello.vue'
+
+@Component({
   components: {
-    /* childA,
-    childB */
-    myForm
-    // MixIn
+    HelloWorld,
+    Hello
   }
-}
+})
+export default class Home extends Vue {}
 </script>

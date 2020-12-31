@@ -10,8 +10,10 @@ Vue.use(create)
 /* 手动实现一个bus */
 
 class MyBus {
+  public callbacks = {} // 存储所有自定义事件的回调函数
+  
   constructor () {
-    this.callbacks = {} // 存储所有自定义事件的回调函数
+    
   }
 
   $emit (name, args) { // 触发事件，参数为事件名和参数

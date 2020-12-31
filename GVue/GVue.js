@@ -264,7 +264,7 @@ let Array_Methods = [
     'splice',
   ];
 
-function createArrayProto(Methods){ //  创建响应式数组原型 柯里化 参数是需要响应化的方法
+function createArrayProto(Methods){ //  创建响应式数组原型 柯里化 参数是需要响应化的数组方法
 
 
   /* 核心原理是在数组实例的原型链上加一层，
@@ -441,9 +441,13 @@ function combine(vnode,data){ // 将带坑的vnode与数据结合
       // 这里的数组响应化只是数组的数据响应化了 数组本身没有响应化 但是对象和对象的数据都是响应化的
       // 即不论是对象的数据变化 还是直接给对象整体赋值 都可以响应式的更新页面 因为对象有object.defineProty,而数组没有
 
-    // 数值数组怎么办  vue2里好像也没法解决 是用vue.set设置的？
-    // 数组整体赋值怎么办  已解决
+    // 数组更新方法 铁蛋
     // 对象增减数据怎么办 参考村长 $set?
-    // 后期加入diff v-model等指令 要逐步完善
-  
+    // 铁蛋 村长
+    // diff patch  v-model等指令 批量异步更新 重写数组方法
+    // watch computed
+    // 双向绑定 目前已实现单向绑定
+    // 组件化怎么实现的
+    // router
+    // vuex
 }

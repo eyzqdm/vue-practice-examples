@@ -7,7 +7,7 @@
       <!-- 匿名插槽 -->
       <slot></slot>
     </div>
-    <!-- 作用域插槽· 使用普通插槽还是作用域插槽 主要看插槽里的数据从哪来 
+    <!-- 作用域插槽· 使用普通插槽还是作用域插槽 主要看插槽里的数据从哪来
     这里把插槽本身的数据绑定到了插槽坑位上（注意可能绑定很多个数据），这样在
     index组件中用插槽时，该坑位就会得到一个数据对象，于是可以用对象结构的方式得到想要展示的数据
     -->
@@ -19,7 +19,7 @@
 
 <script>
   export default {
-    data() {
+    data () {
       return {
         remark: [
           '好好学习，天天向上',
@@ -33,10 +33,10 @@
       }
     },
     computed: {
-      footerContent() {
-        return this.remark[new Date().getDay() - 1] 
+      footerContent () {
+        return this.remark[new Date().getDay() - 1]
       }
-    },
+    }
   }
 </script>
 
