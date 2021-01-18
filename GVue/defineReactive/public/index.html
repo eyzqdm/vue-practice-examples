@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script src="./GVue.js"></script>
 </head>
 <body>
-    <div id="root">
+    <div id="app">
         <div class="c1">
           <div title="tt1" id="id">{{ name }}</div>
           <div title="tt2">{{ age }}</div>
@@ -21,21 +20,5 @@
           </ul>
         </div>
       </div>
-
-    <script>
-
-let app = new GVue({
-    el: '#root',
-    data:{
-        name:'小明',
-        age:18,
-        gender:'难',
-        arr:[1,2,3],
-        obj:{
-          name:'二蛋'
-        }
-    }
-})
-    </script>
 </body>
 </html>

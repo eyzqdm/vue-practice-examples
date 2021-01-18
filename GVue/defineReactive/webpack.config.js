@@ -1,16 +1,6 @@
 const ph = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 module.exports = {
-    module:{
-        rules:[
-            {
-                // 处理es6的babel-loader
-                test:/\.js$/,
-                exclude:/node_modules/,
-                use:"babel-loader"
-            }
-        ]
-    },
     mode: 'development',
     devServer:{ // 配置实时打包
 
@@ -27,11 +17,11 @@ module.exports = {
     },
     plugins:[ // 编译模板 不需要再模板中手动引入js文件了
         new HtmlWebpackPlugin({
-            template:ph.resolve('./index.html')
+            template:ph.resolve("./public/index.html")
         })
     ],
     devtool:'source-map', // 调试时可以快速找到源码
-    resolve:{ // 更改模块查找方式,优先查找source文件夹，再查找noddmodules
+    /* resolve:{ // 更改模块查找方式,优先查找source文件夹，再查找noddmodules
         modules:[ph.resolve(__dirname,'source'),path.resolve('node_modules')]
-    }
+    } */
 }
