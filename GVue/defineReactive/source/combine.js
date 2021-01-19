@@ -53,4 +53,7 @@ function getValueByPath(obj,path){
       // 组件化怎么实现的
       // router
       // vuex
+
+      // 为什么要避免重复收集？ 试图更新后再次触发getter 会再次触发依赖收集？ 上次收集的已经没有了？
+      // 为什么dep的sub是个数组？一个组件不是只对应一个watcher吗？是因为父组件的一个值在多个子组件中使用？
   }

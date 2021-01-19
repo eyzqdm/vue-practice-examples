@@ -1,6 +1,6 @@
 import GVue from '../source/GVue'
 
-let vm = new GVue({
+var vm = new GVue({
     el: '#app',
     data:{
         name:'小明',
@@ -13,8 +13,7 @@ let vm = new GVue({
     }
 })
 
-setTimeout(()=>{
-  vm.age++
-  vm.obj.name = '狗子'
-  vm.arr[2] = 4
+setTimeout(() => {
+  vm.name = '123'
+  vm.name = '456'
 },1000)

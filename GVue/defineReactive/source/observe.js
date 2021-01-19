@@ -61,20 +61,18 @@ export function observe(obj){  // 将对象响应化（数组，对象）
         configurable: true, // 可配置
         enumerable: true, // 可枚举
         get(){
-            console.log('读取'+key)
-            console.log('依赖收集')
             dep.depend(); // 依赖收集
             return value
         },
         set(newValue){
-            console.log('设置'+key+'为'+newValue)
+            //console.log('设置'+key+'为'+newValue)
 
             typeof newValue === 'object'&&observe(newValue)
 
             value = newValue // 目前的问题 传入的newVal是对象的话没法对该对象响应化 临时解决办法是observe一下
              
             //数据已更新 更新模板并渲染到页面
-            console.log('派发更新')
+            //console.log('派发更新')
             dep.notify();
         }
     })

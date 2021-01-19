@@ -1,7 +1,8 @@
+let id = 0;
 export default class Dep { // 依赖 每个属性对应一个Dep对象
   
     constructor(){
-  
+      this.id = id++; // 每个dep有一个专属id标记自己，用于防止被watcher重复收集
       this.subs = [] // 存储所有观察自己的watcher
   
     }
@@ -25,8 +26,6 @@ export default class Dep { // 依赖 每个属性对应一个Dep对象
     depend() {
       
       if ( Dep.target ) {
-        
-        this.addSub( Dep.target ); 
   
         Dep.target.addDep( this ); 
   
