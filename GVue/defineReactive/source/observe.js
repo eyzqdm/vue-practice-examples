@@ -25,7 +25,6 @@ export function observe(obj){  // 将对象响应化（数组，对象）
       数组arr ,其每个属性会被响应化，即通过arr的各种方法（push）时会被监听。
       但数组本身被整体赋值则不会被监听，reactiveArray方法没有做这件事
     } 
-    把这个响应化过程好好捋一遍
      */
   
       Object.keys(obj).forEach((key) => {
@@ -36,7 +35,7 @@ export function observe(obj){  // 将对象响应化（数组，对象）
              
               reactiveArray(value) 
           }
-          // 完美 这样数组本身也是响应式了 整体修改数组也会被监听
+          // 这样数组本身也是响应式了 整体修改数组也会被监听
               defineReactive(obj,key,value) // call一下 函数中的this就是Vue实例了
   
       })
