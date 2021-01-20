@@ -1,4 +1,6 @@
 import { pushTarget,popTarget} from './dep';
+import { nextTick } from './nextTick';
+
 let id = 0; // watcher标识
 let hash = {} // 存储watcher队列的标识
 /* 只要侦听到数据变化,将开启一个队列,并缓冲在同一事件循环中发生的所有数据变更。
@@ -79,6 +81,6 @@ function queueWatcher(watcher) {
         watcherQueue.push(watcher)
     }
     console.log(hash)
-    setTimeout(flusQueue, 0)
     // 异步等待所有同步方法执行完毕 调用该方法 异步任务在同步任务后再执行
+    nextTick(flusQueue)
 }

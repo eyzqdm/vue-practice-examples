@@ -50,10 +50,8 @@ function getValueByPath(obj,path){
       // diff patch  v-model等指令 批量异步更新 重写数组方法
       // watch computed
       // 双向绑定 目前已实现单向绑定
-      // 组件化怎么实现的
-      // router
-      // vuex
 
       // 为什么要避免重复收集？ 试图更新后再次触发getter 会再次触发依赖收集？ 上次收集的已经没有了？
       // 为什么dep的sub是个数组？一个组件不是只对应一个watcher吗？是因为父组件的一个值在多个子组件中使用？
+      // 因为可能有多个watch选项 或$watch创建的watcher实例
   }
