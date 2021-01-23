@@ -41,7 +41,9 @@ export default class Watcher { // 观察者
     }
     /** 对外公开的函数, 用于在 属性发生变化时触发的接口 */
     update() {
+
       queueWatcher(this)
+  
     }
   
     /** 清空依赖队列 */

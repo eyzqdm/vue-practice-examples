@@ -16,4 +16,5 @@ var vm = new GVue({
 setTimeout(() => {
   vm.name = '123'
   vm.name = '456'
+  vm.name = '789'
 },1000)

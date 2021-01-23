@@ -65,6 +65,8 @@ export default class GVue{
   
   
           this._parent.replaceChild(realDom,document.querySelector(`${this.$el}`));
+
+          // 宏任务里的dom操作会导致浏览器刷新 微任务里不会
           /* 通过querySelector（querySelectorAll）获取到元素之后，不论html元素再怎么改变，
           这个变量并不会随之发生改变，这个变量已经和html元素没有任何关系了。 */
       }  

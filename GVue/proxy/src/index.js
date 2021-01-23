@@ -15,4 +15,5 @@ var vm = new GVue({
 
 setTimeout(() => {
  vm.obj.name = '三蛋'
+ vm.arr[3] = '5'
 },1000)

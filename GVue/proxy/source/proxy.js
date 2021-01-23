@@ -22,11 +22,11 @@ export function observe (obj){
 
     return new Proxy(obj,{
      
-        get(target,key){
+        get(target,key,receiver){
 
             console.log(key)
 
-            const res = Reflect.get(target,key) // proxy中的每个方法都与reflect中的同名方法对应
+            const res = Reflect.get(target,key,receiver) // proxy中的每个方法都与reflect中的同名方法对应
 
             //  依赖收集 v2中这里是将dep和watcher相互关联
             track(target,key)
@@ -34,10 +34,10 @@ export function observe (obj){
             // 深层响应化
             return isObj(obj)? observe(res):res
         },
-        set(target,key,val){
+        set(target,key,val,receiver){
             console.log('set', key)
 
-            const res = Reflect.set(target, key, val)
+            const res = Reflect.set(target, key, val,receiver)
             // 派发更新
             trigger(target, key)
             return res

@@ -1,21 +1,21 @@
-let callbacks = []
+/* let callbacks = []
 
 function flushCallbacks() {
     callbacks.forEach(cb => cb())
-}
+} */
 // cb就是 flusQueue
 export function nextTick(cb) {
-    callbacks.push(cb) // 因为此方法可以单独调用 所有放到数组
+    //callbacks.push(cb) // 因为此方法可以单独调用 所有放到数组
 
     let aysncFn = () => {
-        flushCallbacks();
+        cb();
     }
     // 使用异步的各种方法  执行顺序
     // 微任务:promise mutationObserver  宏任务: setImmediate setTimeout
-    if (Promise) {
+   /*  if (Promise) {
         console.log('promise 异步执行')
         Promise.resolve().then(aysncFn)
-    }
+    } */
     if (MutationObserver) {
         let observe = new MutationObserver(aysncFn)
         let textNode = document.createTextNode(1)

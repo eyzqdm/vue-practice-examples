@@ -60,7 +60,7 @@ export default class GVue{
           this.update(this.render())
         }
 
-         effect(mount.bind(this))
+         effect(mount.bind(this)) // 传入时要绑定上下文
       
       //  console.log('创建watcher')
        // new Watcher (this,mount) //相当于这里调用了 mount
