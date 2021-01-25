@@ -25,6 +25,9 @@ export default {
       form: this
     }
   },
+  created(){
+
+  },
   data () {
     return {
       userInfo: {
