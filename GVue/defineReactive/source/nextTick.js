@@ -12,10 +12,10 @@ export function nextTick(cb) {
     }
     // 使用异步的各种方法  执行顺序
     // 微任务:promise mutationObserver  宏任务: setImmediate setTimeout
-   /*  if (Promise) {
+    if (Promise) {
         console.log('promise 异步执行')
         Promise.resolve().then(aysncFn)
-    } */
+    }
     if (MutationObserver) {
         let observe = new MutationObserver(aysncFn)
         let textNode = document.createTextNode(1)

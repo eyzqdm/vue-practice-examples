@@ -1,18 +1,19 @@
-import Dep from './dep';
+import Dep from "./dep";
 
 let Array_Methods = [
-  'push',
-  'pop',
-  'shift',
-  'unshift',
-  'reverse',
-  'sort',
-  'splice',
+  "push",
+  "pop",
+  "shift",
+  "unshift",
+  "reverse",
+  "sort",
+  "splice",
 ];
 
-export function observe(obj){  // 将对象响应化（数组，对象）
-  
-    /*
+export function observe(obj) {
+  // 将对象响应化（数组，对象）
+
+  /*
     data:{
       name:'123', 
       普通变量响应化后，被改变会被监听到
@@ -26,93 +27,83 @@ export function observe(obj){  // 将对象响应化（数组，对象）
       但数组本身被整体赋值则不会被监听，reactiveArray方法没有做这件事
     } 
      */
-  
-      Object.keys(obj).forEach((key) => {
-         
-          /* 对象和数组的响应化处理方式不同 */
-          let value = obj[key]
-          if(Array.isArray(value)){
-             
-              reactiveArray(value) 
-          }
-          // 这样数组本身也是响应式了 整体修改数组也会被监听
-              defineReactive(obj,key,value) // call一下 函数中的this就是Vue实例了
-  
-      })
-  }
 
-  // 每次调用reactiveArray 传入数组 会将该数组响应化
-  const reactiveArray = createArrayProto(Array_Methods)
-  
-  function defineReactive (obj,key,value){ // 数据响应化
-  
-  
-    if(typeof value === 'object' && value != null){
-      
-      // 传入observe的可能是数组吗？不可能
-      observe(value)
+  Object.keys(obj).forEach((key) => {
+    /* 对象和数组的响应化处理方式不同 */
+    let value = obj[key];
+    if (Array.isArray(value)) {
+      reactiveArray(value);
     }
-
-    console.log('创建'+value+'的dep')
-    let dep = new Dep(); // 为每个属性创建一个Dep
-
-    Object.defineProperty(obj,key,{
-        configurable: true, // 可配置
-        enumerable: true, // 可枚举
-        get(){
-            dep.depend(); // 依赖收集
-            return value
-        },
-        set(newValue){
-            //console.log('设置'+key+'为'+newValue)
-
-            typeof newValue === 'object'&&observe(newValue)
-
-            value = newValue // 目前的问题 传入的newVal是对象的话没法对该对象响应化 临时解决办法是observe一下
-             
-            //数据已更新 更新模板并渲染到页面
-            //console.log('派发更新')
-            dep.notify();
-        }
-    })
-
+    // 这样数组本身也是响应式了 整体修改数组也会被监听
+    defineReactive(obj, key, value); // call一下 函数中的this就是Vue实例了
+  });
 }
 
-function createArrayProto(Methods){ //  创建响应式数组原型 柯里化 参数是需要响应化的数组方法
+// 每次调用reactiveArray 传入数组 会将该数组响应化
+const reactiveArray = createArrayProto(Array_Methods);
 
+function defineReactive(obj, key, value) {
+  // 数据响应化
+
+  if (typeof value === "object" && value != null) {
+    // 传入observe的可能是数组吗？不可能
+    observe(value);
+  }
+
+  console.log("创建" + value + "的dep");
+  let dep = new Dep(); // 为每个属性创建一个Dep
+
+  Object.defineProperty(obj, key, {
+    configurable: true, // 可配置
+    enumerable: true, // 可枚举
+    get() {
+      dep.depend(); // 依赖收集
+      return value;
+    },
+    set(newValue) {
+      //console.log('设置'+key+'为'+newValue)
+
+      typeof newValue === "object" && observe(newValue);
+
+      value = newValue; // 目前的问题 传入的newVal是对象的话没法对该对象响应化 临时解决办法是observe一下
+
+      //数据已更新 更新模板并渲染到页面
+      //console.log('派发更新')
+      dep.notify();
+    },
+  });
+}
+
+function createArrayProto(Methods) {
+  //  创建响应式数组原型 柯里化 参数是需要响应化的数组方法
 
   /* 核心原理是在数组实例的原型链上加一层，
   让数组实例访问数组方法时首先访问的是新增的原型上的改写过的方法 */
 
-    let Array_Proto = Object.create( Array.prototype ) 
+  let Array_Proto = Object.create(Array.prototype);
 
-    
-    Methods.forEach((method) => {
-      
-        Array_Proto[method] = function(){
+  Methods.forEach((method) => {
+    Array_Proto[method] = function () {
+      console.log("重写的" + method + " 方法");
 
-            console.log('重写的' + method +' 方法')
-            
-            for( let i = 0; i < arguments.length; i++ ) { // 对调用数组方法时出传入的数据进行响应化
-               typeof arguments[ i ] === 'object'&&observe( arguments[ i ] );
-            } 
+      for (let i = 0; i < arguments.length; i++) {
+        // 对调用数组方法时出传入的数据进行响应化
+        typeof arguments[i] === "object" && observe(arguments[i]);
+      }
 
-            /* 更新页面方法暂时空缺 */
+      /* 更新页面方法暂时空缺 */
 
-            return Array.prototype[method].apply(this,arguments)
+      return Array.prototype[method].apply(this, arguments);
+    };
+  });
 
-        }
-    })
+  return function (array) {
+    array.__proto__ = Array_Proto;
 
-    return function (array){
+    /* 对数组中的数据响应化 这样数组中的值。。 */
 
-        array.__proto__ = Array_Proto
-
-        /* 对数组中的数据响应化 这样数组中的值。。 */
-
-        array.forEach((item) => {
-
-          observe(item)
-        })
-    }
+    array.forEach((item) => {
+      observe(item);
+    });
+  };
 }
